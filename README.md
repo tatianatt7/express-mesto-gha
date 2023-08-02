@@ -1,6 +1,12 @@
 [![Tests](../../actions/workflows/tests-13-sprint.yml/badge.svg)](../../actions/workflows/tests-13-sprint.yml) [![Tests](../../actions/workflows/tests-14-sprint.yml/badge.svg)](../../actions/workflows/tests-14-sprint.yml)
 # Проект Mesto фронтенд + бэкенд
 
+Проектная работа №13
+
+- Работа с node.js
+- Подключение серверной части Express.js к проекту
+- Подключение БД MongoDB к проекту
+- Работа с Postman (проверка автотестами)
 
 ## Директории
 
