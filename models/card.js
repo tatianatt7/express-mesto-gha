@@ -17,16 +17,16 @@ const cardSchema = new Schema({
   },
   owner: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
     required: true,
   },
   likes: [{
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
   }],
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 module.exports = model('card', cardSchema);
