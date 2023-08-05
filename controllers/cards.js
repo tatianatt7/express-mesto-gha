@@ -6,6 +6,7 @@ const {
   HTTP_STATUS_BAD_REQUEST,
   HTTP_STATUS_INTERNAL_SERVER_ERROR,
   HTTP_STATUS_CREATED,
+  HTTP_STATUS_NOT_FOUND,
 } = require('../utils/constants');
 
 const createCard = (req, res) => {
@@ -36,29 +37,55 @@ const deleteCard = (req, res) => {
     .then(() => {
       res.send({ message: 'Карточка успешно удалена' });
     })
-    .catch(() => res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка сервера' }));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный ID карточки' });
+      } else {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 const putLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new NotFoundError('Карточка с указанным ID не найдена'))
-    .then((card) => res.send({ data: card }))
-    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' }));
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с указанным ID не найдена');
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным ID не найдена' });
+      } else {
+        res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 const deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $pull: { likes: req.user._id } }, // убрать _id из массива
+    { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(new NotFoundError('Карточка с указанным ID не найдена'))
-    .then((card) => res.send({ data: card }))
-    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' }));
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с указанным ID не найдена');
+      }
+      res.send({ data: card });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным ID не найдена' });
+      } else {
+        res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
+      }
+    });
 };
 
 module.exports = {

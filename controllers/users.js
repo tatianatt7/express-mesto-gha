@@ -15,14 +15,17 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((foundUser) => {
-      if (foundUser === null) {
-        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с таким ID не найден' });
+    .orFail(new Error('NotFoundError'))
+    .then((foundUser) => res.send({ data: foundUser }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Неверный ID' });
+      } else if (err.message === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с таким ID не найден' });
+      } else {
+        res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка сервера' });
       }
-
-      return res.send(foundUser);
-    })
-    .catch(() => res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Неверный ID' }));
+    });
 };
 
 const createUser = (req, res) => {
@@ -41,12 +44,15 @@ const createUser = (req, res) => {
 
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
-
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new NotFoundError())
-    .then((user) => res.send({ data: user }))
+    .orFail(new NotFoundError('Некорректные данные'))
+    .then((user) => {
+      res.send({ data: user });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Некорректные данные' });
+      } else if (err instanceof 'CastError' || err instanceof 'ValidationError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
@@ -57,11 +63,13 @@ const updateProfile = (req, res) => {
 const updateProfileAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(new NotFoundError())
+    .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректные данные' });
+      } else if (err.name === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
       }

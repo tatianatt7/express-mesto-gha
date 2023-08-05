@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const { HTTP_STATUS_NOT_FOUND } = require('./utils/constants');
+
 const app = express();
 app.use(express.json());
 
@@ -19,7 +21,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'неизвестная ошибка' });
+  res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'страница не найдена' });
 });
 
 app.listen(PORT, () => {
