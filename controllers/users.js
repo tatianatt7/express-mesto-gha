@@ -15,11 +15,11 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(new NotFoundError('Пользователь с таким ID не найден'))
+    .orFail(new NotFoundError())
     .then((foundUser) => res.send({ data: foundUser }))
     .catch((err) => {
-      if (err.message === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      if (err.message === 'NotFound') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с таким ID не найден' });
       } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Неверный ID пользователя' });
       } else {
@@ -45,13 +45,13 @@ const createUser = (req, res) => {
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(new NotFoundError())
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный ID пользователя' });
       } else if (err.name === 'ValidationError') {
@@ -65,11 +65,11 @@ const updateProfile = (req, res) => {
 const updateProfileAvatar = (req, res) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => new NotFoundError('Пользователь не найден'))
+    .orFail(() => new NotFoundError())
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      if (err.name === 'NotFound') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else if (err.name === 'CastError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный ID пользователя' });
       } else if (err.name === 'ValidationError') {

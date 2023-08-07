@@ -90,6 +90,9 @@ const deleteLike = (req, res) => {
   ).orFail(() => new NotFoundError(MESSAGE_ERROR_CARD_NOT_FOUND))
     .then((card) => res.send({ data: card }))
     .catch((err) => {
+      if (err instanceof CastError) {
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: MESSAGE_ERROR_CAST });
+      }
       if (err instanceof NotFoundError) {
         return res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
       }

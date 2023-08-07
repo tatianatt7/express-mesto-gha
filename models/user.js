@@ -11,8 +11,8 @@ const userSchema = new Schema({
   about: {
     type: String,
     required: [true, 'Поле "about" должно быть заполнено'],
-    maxlenght: [30, 'Максимальная длина поля "about" - 30'],
-    minlenght: [2, 'Минимальная длина поля "about" - 2'],
+    minlength: [2, 'Минимальная длина поля "about" - 2'],
+    maxlength: [30, 'Максимальная длина поля "about" - 30'],
   },
   avatar: {
     type: String,
