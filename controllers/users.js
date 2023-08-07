@@ -15,13 +15,13 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(new Error('NotFoundError'))
+    .orFail(new NotFoundError('Пользователь с таким ID не найден'))
     .then((foundUser) => res.send({ data: foundUser }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Неверный ID' });
-      } else if (err.message === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с таким ID не найден' });
+      if (err.message === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      } else if (err.name === 'CastError') {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Неверный ID пользователя' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Произошла ошибка сервера' });
       }
@@ -45,14 +45,16 @@ const createUser = (req, res) => {
 const updateProfile = (req, res) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(new NotFoundError('Некорректные данные'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Некорректные данные' });
-      } else if (err instanceof 'CastError' || err instanceof 'ValidationError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      } else if (err.name === 'CastError') {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный ID пользователя' });
+      } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректные данные' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
@@ -66,10 +68,12 @@ const updateProfileAvatar = (req, res) => {
     .orFail(() => new NotFoundError('Пользователь не найден'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'NotFoundError') {
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: err.message });
+      } else if (err.name === 'CastError') {
+        res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректный ID пользователя' });
+      } else if (err.name === 'ValidationError') {
         res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Некорректные данные' });
-      } else if (err.name === 'NotFoundError') {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
       } else {
         res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'Ошибка сервера' });
       }

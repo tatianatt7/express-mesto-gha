@@ -11,6 +11,11 @@ const {
   },
 } = require('http2');
 
+const MESSAGE_ERROR_NOT_VALID = 'Данные не валидны';
+const MESSAGE_ERROR_CAST = 'Некорректный ID карточки';
+const MESSAGE_ERROR_SERVER = 'Ошибка сервера';
+const MESSAGE_ERROR_CARD_NOT_FOUND = 'Карточка с указанным ID не найдена';
+
 module.exports = {
   HTTP_STATUS_BAD_GATEWAY,
   HTTP_STATUS_BAD_REQUEST,
@@ -19,4 +24,8 @@ module.exports = {
   HTTP_STATUS_NOT_FOUND,
   HTTP_STATUS_OK,
   HTTP_STATUS_INTERNAL_SERVER_ERROR,
+  MESSAGE_ERROR_NOT_VALID,
+  MESSAGE_ERROR_CAST,
+  MESSAGE_ERROR_SERVER,
+  MESSAGE_ERROR_CARD_NOT_FOUND,
 };
