@@ -58,4 +58,4 @@ userSchema.statics.findUserByCredentials = function (email, password) {
     });
 };
 
-module.exports = model('User', userSchema);
+module.exports = model('user', userSchema);
