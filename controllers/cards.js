@@ -6,6 +6,9 @@ const NotFoundError = require('../utils/notFoundError');
 
 const {
   HTTP_STATUS_CREATED,
+  MESSAGE_ERROR_NOT_VALID,
+  MESSAGE_ERROR_CARD_NOT_FOUND,
+  MESSAGE_ERROR_FORBIDDEN,
 } = require('../utils/constants');
 
 const createCard = (req, res, next) => {
@@ -14,8 +17,10 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(HTTP_STATUS_CREATED).send({ data: card }))
     .catch((error) => {
       if (error instanceof ValidationError) {
-        return next(new BadRequestError('Переданы некорректные данные'));
-      } return next(error);
+        return next(new BadRequestError(MESSAGE_ERROR_NOT_VALID));
+      }
+
+      return next(error);
     });
 };
 
@@ -32,13 +37,13 @@ const deleteCard = (req, res, next) => {
   const { _id: userID } = req.user;
 
   Card.findById(cardId)
-    .orFail(new NotFoundError('Запрашиваемая карточка с таким id не найдена'))
+    .orFail(new NotFoundError(MESSAGE_ERROR_CARD_NOT_FOUND))
     .then((card) => {
       if (!card.owner.toString(userID)) {
-        return next(new ForbiddenError('Удаление запрещено'));
+        return next(new ForbiddenError(MESSAGE_ERROR_FORBIDDEN));
       }
 
-      return card.findByIdAndRemove(cardId)
+      return Card.findByIdAndRemove(cardId)
         .then(() => {
           res.send({ data: {} });
         })
@@ -52,7 +57,7 @@ const putLike = (req, res, next) => {
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
     { new: true },
-  ).orFail(() => new NotFoundError('Запрашиваемая карточка с таким id не найдена'))
+  ).orFail(() => new NotFoundError(MESSAGE_ERROR_CARD_NOT_FOUND))
     .then((card) => res.send({ data: card }))
     .catch(next);
 };
@@ -62,7 +67,7 @@ const deleteLike = (req, res, next) => {
     req.params.cardId,
     { $pull: { likes: req.user._id } },
     { new: true },
-  ).orFail(() => new NotFoundError('Запрашиваемая карточка с таким id не найдена'))
+  ).orFail(() => new NotFoundError(MESSAGE_ERROR_CARD_NOT_FOUND))
     .then((card) => res.send({ data: card }))
     .catch(next);
 };

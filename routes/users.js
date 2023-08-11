@@ -1,8 +1,12 @@
 const router = require('express').Router();
 
 const {
+  validateGetUser,
+} = require('../utils/validator');
+const {
   getUsers,
   getUserById,
+  getCurrentUser,
   createUser,
   updateProfile,
   updateProfileAvatar,
@@ -10,7 +14,9 @@ const {
 
 router.get('/', getUsers);
 
-router.get('/:userId', getUserById);
+router.get('/me', getCurrentUser);
+
+router.get('/:userId', validateGetUser, getUserById);
 
 router.post('/', createUser);
 
