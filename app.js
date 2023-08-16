@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 // const { rateLimit } = require('express-rate-limit');
 const auth = require('./middlewares/auth');
-const errorHandler = require('./middlewares/errorHandler');
+const handlerError = require('./middlewares/handlerError');
 const { createUser, login } = require('./controllers/users');
 const { validateSignIn, validateSignUp } = require('./utils/validator');
 const { NotFoundError } = require('./utils/errors');
@@ -39,6 +39,6 @@ app.use('/cards', require('./routes/cards'));
 app.use('*', (_, __, next) => next(new NotFoundError()));
 
 app.use(errors());
-app.use(errorHandler);
+app.use(handlerError);
 
 app.listen(PORT, () => console.info('Server is started on port:', PORT));
