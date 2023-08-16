@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const { Schema, model } = require('mongoose');
 const validator = require('validator');
-const UnauthorizedError = require('../utils/unauthorizedError');
+const { UnauthorizedError } = require('../utils/errors');
 
 const userSchema = new Schema({
   name: {
@@ -23,8 +23,8 @@ const userSchema = new Schema({
     validate: {
       validator: (value) => validator.isURL(value),
       message: 'Неверный URL',
-      default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
+    default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
     type: String,
@@ -40,9 +40,11 @@ const userSchema = new Schema({
     require: [true, 'Поле "password" должно быть заполнено'],
     select: false,
   },
+}, {
+  versionKey: false,
 });
 
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function findUser(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {

@@ -1,4 +1,7 @@
-const { HTTP_STATUS_UNAUTHORIZED, MESSAGE_ERROR_UNAUTHORIZED } = require('./constants');
+const {
+  HTTP_STATUS_UNAUTHORIZED,
+  MESSAGE_ERROR_UNAUTHORIZED,
+} = require('../constants');
 
 class UnauthorizedError extends Error {
   constructor(message = MESSAGE_ERROR_UNAUTHORIZED) {
@@ -7,4 +10,6 @@ class UnauthorizedError extends Error {
   }
 }
 
-module.exports = UnauthorizedError;
+module.exports = {
+  UnauthorizedError,
+};
